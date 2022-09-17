@@ -23,6 +23,7 @@ from html import escape
 from uuid import uuid4
 
 import logging
+import config
 
 # Enable logging
 logging.basicConfig(
@@ -31,8 +32,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-PAYMENT_PROVIDER_TOKEN = '371317599:TEST:1660556776557'
-TELEGRAM_BOT_TOKEN = '5538417603:AAGny-20v6DK2bD77wPr5TJv8o1X48T5HZo'
+TELEGRAM_BOT_TOKEN = config.TELEGRAM_BOT_TOKEN
+PAYMENT_PROVIDER_TOKEN = config.PAYMENT_PROVIDER_TOKEN
+
 DONATE = range(1)
 
 
@@ -41,11 +43,11 @@ The way to use me is to write the inline query by your self
 
 The format should be in this arrangement:
 
-@ptgbbot your AnonyIO @username
+@anonyiobot your AnonyIO @username
 
 Now I'll split out the format in 3 parts and explain every part of it
 
-1 - @ptgbbot
+1 - @anonyiobot
 this is my username it should be at the beginning of the inline query so I'll know that you are using me and not another bot.
 
 2 - AnonyIO message
@@ -55,7 +57,7 @@ it is the AnonyIO that will be sent to the target user, you need to remove your 
 you should replace this with target's username so the bot will know that the user with this username can see your AnonyIO message.
 
 Example:
-@ptgbbot Good morning! @durov
+@anonyiobot Good morning! @durov
 
 The bot works in groups and the target user should be in the same group with you
 what you are waiting for?!
@@ -67,11 +69,11 @@ _ru_learn_more = """
 
 Формат должен быть в таком расположении:
 
-@ptgbbot ваш AnonyIO @username
+@anonyiobot ваш AnonyIO @username
 
 Теперь я разделю формат на 3 части и объясню каждую его часть.
 
-1 - @ptgbbot
+1 - @anonyiobot
 это мое имя пользователя, оно должно быть в начале встроенного запроса, чтобы я знал, что вы используете меня, а не другого бота.
 
 2 - AnonyIO message
@@ -81,7 +83,7 @@ _ru_learn_more = """
 вы должны заменить это именем пользователя цели, чтобы бот знал, что пользователь с этим именем пользователя может видеть ваше сообщение AnonyIO.
 
 Пример:
-@ptgbbot Доброе утро! @durov
+@anonyiobot Доброе утро! @durov
 
 Бот работает в группах и целевой пользователь должен быть в одной группе с вами
 чего вы ждете?!
@@ -93,11 +95,11 @@ Mendan foydalanishning yo'li ichki so'rovni o'zingiz yozish
 
 Format ushbu tartibda bo'lishi kerak:
 
-@ptgbbot sizning AnonyIO @username
+@anonyiobot sizning AnonyIO @username
 
 Endi men formatni 3 qismga ajrataman va uning har bir qismini tushuntiraman
 
-1 - @ptgbbot
+1 - @anonyiobot
 bu mening foydalanuvchi nomim, u ichki so'rovning boshida bo'lishi kerak, shuning uchun siz boshqa botdan emas, mendan foydalanayotganingizni bilaman.
 
 2 - AnonyIO message
@@ -107,7 +109,7 @@ bu maqsadli foydalanuvchiga yuboriladigan AnonyIO, siz AnonyIO-ni olib tashlashi
 uni maqsadli foydalanuvchi nomi bilan almashtirishingiz kerak, shunda bot ushbu foydalanuvchi nomiga ega bo'lgan foydalanuvchi sizning AnonyIO xabaringizni ko'rishi mumkinligini bilib oladi.
 
 Masalan:
-@ptgbbot Hayrli tong! @durov
+@anonyiobot Hayrli tong! @durov
 
 Bot guruhlarda ishlaydi va maqsadli foydalanuvchi siz bilan bir guruhda bo'lishi kerak
 nima kutyapsiz?!
@@ -116,21 +118,18 @@ meni hozir sinab ko'ring 😉
 
 _en_about = """
 🥱 This bot was made by @abdibrokhim
-🫡 Questions and suggestions @appjsbot
 
 /start - to go back to the main page.
 """
 
 _ru_about = """
 🥱 Бот разработал @abdibrokhim
-🫡 Жалобы и предложения @appjsbot
 
 /start - вернуться на главную страницу.
 """
 
 _uzb_about = """
 🥱 Bot @abdibrokhim tomonidan ishlab chiqilgan
-🫡 Savol va takliflaf @appjsbot
 
 /start - bosh menyuga qaytish.
 """
@@ -164,9 +163,6 @@ async def callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Who pressed button
     from_ = update.callback_query.from_user
-
-    print('\nCallback query data:', query)
-    print(from_)
 
     if query.data == '_donate':
         await donate_handler(update, context)
@@ -366,7 +362,6 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
     to_ = query.split('@')
 
     print(to_[0], ' - to - ', to_[1], ' - from - ', from__.username)  # initial info from who, what message and to whom
-    print("\nInline query data:", update.inline_query)
 
     if query == "":
         return
@@ -392,7 +387,6 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
 
     query = await context.bot.answerCallbackQuery(callback_query_id=update.inline_query.id,)
-    print('\nCallback Query (bool):', query)
 
     context.user_data['from_tg_username'] = from__.username
     context.user_data['whisper'] = to_[0]
@@ -408,13 +402,13 @@ async def donate_handler(update: Update, context: CallbackContext):
     title = "☕️ Donate"
     description = "🥱 Support developer"
     # select a payload just for you to recognize its the donation from your bot
-    payload = "Payload"
+    payload = "payload"
     # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
     currency = "UZS"
     # price in so'ms
     price = 10000
     # price * 100 so as to include 2 decimal points
-    prices = [LabeledPrice("Test", price * 100)]
+    prices = [LabeledPrice("☕️ Donate", price * 100)]
 
     # optionally pass need_name=True, need_phone_number=True,
     # need_email=True, need_shipping_address=True, is_flexible=True
@@ -427,7 +421,7 @@ async def donate_handler(update: Update, context: CallbackContext):
 async def successful_donate_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Confirms the successful payment."""
     # do something after successfully receiving payment?
-    await update.message.reply_text("Thank you for your payment!")
+    await update.message.reply_text("💜 Thank you for your payment!")
 
 
 if __name__ == '__main__':
