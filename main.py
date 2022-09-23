@@ -29,7 +29,6 @@ logger = logging.getLogger(__name__)
 
 
 TELEGRAM_BOT_TOKEN = ''
-PAYME_LINK = ''
 
 
 _en_learn_more = """
@@ -51,7 +50,7 @@ it is the AnonyIO that will be sent to the target user, you need to remove your 
 you should replace this with target's username so the bot will know that the user with this username can see your AnonyIO message.
 
 Example:
-@anonyiobot Good morning! @durov
+@anonyiobot Good morning! @abdibrokhim
 
 The bot works in groups and the target user should be in the same group with you
 what you are waiting for?!
@@ -77,7 +76,7 @@ _ru_learn_more = """
 вы должны заменить это именем пользователя цели, чтобы бот знал, что пользователь с этим именем пользователя может видеть ваше сообщение AnonyIO.
 
 Пример:
-@anonyiobot Доброе утро! @durov
+@anonyiobot Доброе утро! @abdibrokhim
 
 Бот работает в группах и целевой пользователь должен быть в одной группе с вами
 чего вы ждете?!
@@ -103,7 +102,7 @@ bu maqsadli foydalanuvchiga yuboriladigan AnonyIO, siz AnonyIO-ni olib tashlashi
 uni maqsadli foydalanuvchi nomi bilan almashtirishingiz kerak, shunda bot ushbu foydalanuvchi nomiga ega bo'lgan foydalanuvchi sizning AnonyIO xabaringizni ko'rishi mumkinligini bilib oladi.
 
 Masalan:
-@anonyiobot Hayrli tong! @durov
+@anonyiobot Hayrli tong! @abdibrokhim
 
 Bot guruhlarda ishlaydi va maqsadli foydalanuvchi siz bilan bir guruhda bo'lishi kerak
 nima kutyapsiz?!
@@ -254,6 +253,11 @@ Assolomu alaykum: {user.full_name}!
 
 Agar siz men haqimda ko'proq ma'lumot olishni istasangiz, quyidagi tugmani bosing.
 
+☺️ Bizning boshqa foydali loyihalarimiz:
+
+@music_recognizerBot - Musiqani ovozli xabar orqali taniy oladigan bot
+@tiktokwatermark_removerBot - TikTok videodan suv belgisini olib tashlaydigan bot
+
 """
 
     reply_markup = InlineKeyboardMarkup(
@@ -288,6 +292,10 @@ async def ru_lang_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 Если вам интересно узнать обо мне больше, нажмите на кнопку ниже.
 
+☺️ Наши другие полезные проекты:
+
+@music_recognizerBot - Бот для распознавания музыки по голосовому сообщению
+@tiktokwatermark_removerBot - Бот для удаления водяных знаков из видео TikTok
 """
 
     reply_markup = InlineKeyboardMarkup(
@@ -322,6 +330,10 @@ Welcome: {user.full_name}!
 
 If you are interested to learn more about me click on the Button below.
 
+☺️ Our other useful projects:
+
+@music_recognizerBot - Bot to recognize music by voice message
+@tiktokwatermark_removerBot - Bot to remove TikTok video watermarks
 """
 
     reply_markup = InlineKeyboardMarkup(
@@ -385,10 +397,15 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def _donate_handler(update: Update, context: CallbackContext):
+    """ Donate function """
+    txt = """
+☕️ Humo: 9860 1701 0193 9156
+☕️ Visa: 4023 0602 4638 1551
+"""
+
     await update.message.reply_photo(
         photo=open('payme/payme.png', 'rb'),
-        caption='📱 Scan QR code or\n\n⛓ Tap the link below\n\n' + PAYME_LINK,
-        filename='Donation'
+        caption=txt,
     )
 
 
