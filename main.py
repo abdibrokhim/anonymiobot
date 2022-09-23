@@ -6,7 +6,6 @@ from telegram import (
     InputTextMessageContent,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    LabeledPrice,
 )
 from telegram.ext import (
     ApplicationBuilder,
@@ -15,15 +14,12 @@ from telegram.ext import (
     CallbackContext,
     InlineQueryHandler,
     CallbackQueryHandler,
-    MessageHandler,
-    filters,
 )
 from telegram.constants import ParseMode
 from html import escape
 from uuid import uuid4
 
 import logging
-import config
 
 # Enable logging
 logging.basicConfig(
@@ -32,10 +28,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-TELEGRAM_BOT_TOKEN = config.TELEGRAM_BOT_TOKEN
-PAYMENT_PROVIDER_TOKEN = config.PAYMENT_PROVIDER_TOKEN
-
-DONATE = range(1)
+TELEGRAM_BOT_TOKEN = ''
+PAYME_LINK = ''
 
 
 _en_learn_more = """
@@ -148,9 +142,6 @@ Tilni tanlang 🦋 Выберите язык 🦋 Choose language
                 InlineKeyboardButton('🇷🇺 Russian', callback_data='_ru',),
                 InlineKeyboardButton('🇺🇸 English', callback_data='_en',),
             ],
-            [
-                InlineKeyboardButton('☕️ Donate', callback_data='_donate',)
-            ]
         ]
     )
 
@@ -164,8 +155,6 @@ async def callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Who pressed button
     from_ = update.callback_query.from_user
 
-    if query.data == '_donate':
-        await donate_handler(update, context)
 
     # Move to specifik language
     if query.data == '_uzb':
@@ -395,44 +384,21 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.inline_query.answer(results=results,)
 
 
-async def donate_handler(update: Update, context: CallbackContext):
-    """Sends an invoice without shipping-payment."""
-    # chat_id = update.message.chat_id
-    chat_id = update.effective_chat.id
-    title = "☕️ Donate"
-    description = "🥱 Support developer"
-    # select a payload just for you to recognize its the donation from your bot
-    payload = "payload"
-    # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
-    currency = "UZS"
-    # price in so'ms
-    price = 10000
-    # price * 100 so as to include 2 decimal points
-    prices = [LabeledPrice("☕️ Donate", price * 100)]
-
-    # optionally pass need_name=True, need_phone_number=True,
-    # need_email=True, need_shipping_address=True, is_flexible=True
-    await context.bot.send_invoice(
-        chat_id, title, description, payload, PAYMENT_PROVIDER_TOKEN, currency, prices
+async def _donate_handler(update: Update, context: CallbackContext):
+    await update.message.reply_photo(
+        photo=open('payme/payme.png', 'rb'),
+        caption='📱 Scan QR code or\n\n⛓ Tap the link below\n\n' + PAYME_LINK,
+        filename='Donation'
     )
-
-
-# finally, after contacting the payment provider...
-async def successful_donate_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Confirms the successful payment."""
-    # do something after successfully receiving payment?
-    await update.message.reply_text("💜 Thank you for your payment!")
 
 
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).read_timeout(7).get_updates_read_timeout(42).build()
 
     app.add_handler(CommandHandler("start", start_handler))
+    app.add_handler(CommandHandler("donate", _donate_handler))
     app.add_handler(InlineQueryHandler(inline_query))
     app.add_handler(CallbackQueryHandler(callback_query))
-    app.add_handler(
-        MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_donate_callback)
-    )
 
     print("updated ...")
     app.run_polling()
